@@ -471,6 +471,15 @@ if(__name__=='__main__'):
 			if(len(sys.argv)>3 and sys.argv[3]=='--ts'):
 				print(timestamp)
 			sys.exit(0)
+		elif(sys.argv[1]=='--help'):
+			print('Tools:')
+			print('  '+sys.argv[0]+' email <email file>')
+			print('  '+sys.argv[0]+' reformat')
+			print('    (reads ping-format messages from stdin; you can pipe to it)')
+			print('Run:')
+			print('  '+sys.argv[0])
+			print('  '+sys.argv[0]+' --file <event file>')
+			sys.exit(0)
 		#accept requests for nonstandard event files
 		elif(sys.argv[1]=='--file'):
 			if(len(sys.argv)>2):
