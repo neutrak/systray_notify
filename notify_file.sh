@@ -7,13 +7,14 @@
 check_new_emails(){
 	output_file="$1"
 	email_path="$2"
+	getmail_rc="$3"
 #	last_ts=0
 	#not knowing when we last checked, start from now
 	last_ts="$(date +%s)"
 	
 	while [ 1 ]
 	do
-		getmail
+		getmail -r "$getmail_rc"
 		
 		new_ts=$last_ts
 		#for each email folder
@@ -95,7 +96,7 @@ if [ "$1" == "email" ]
 then
 	#1st argument: output file
 	#2nd argument: mail directory (maildir)
-	check_new_emails "$2" "$3"
+	check_new_emails "$2" "$3" "$4"
 elif [ "$1" == "watch" ]
 then
 	#1st argument: input file
@@ -104,7 +105,7 @@ then
 	#notify_on 'http://192.168.1.4/pings.txt' "${HOME}/.local/share/systray_notify/events.txt" "curl"
 	notify_on "$2" "$3" "$4"
 else
-	echo "Usage: $0 <email> <output file> <mail directory>"
+	echo "Usage: $0 <email> <output file> <mail directory> <getmail_rc>"
 	echo "Usage: $0 <watch> <input file> <output file> <curl|local>"
 fi
 
