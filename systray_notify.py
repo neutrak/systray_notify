@@ -13,7 +13,8 @@ import time
 import datetime
 
 #icon_path='test_files' #debug
-icon_path=os.path.join(os.getenv('HOME'),'.local','share','systray_notify')
+#icon_path=os.path.join(os.getenv('HOME'),'.local','share','systray_notify')
+icon_path=os.path.join('imgs')
 idle_icon='notify_idle.png'
 evnt_icon='notify_checkmark.png'
 
@@ -441,8 +442,8 @@ def ping_reformat(in_str,pretty_timefrmt=True):
 	return timestamp,out_str
 
 if(__name__=='__main__'):
-#	evnt_file=os.path.join('test_files','systray_events.txt') #debug
-	evnt_file=os.path.join(os.getenv('HOME'),'.local','share','systray_notify','events.txt')
+	evnt_file=os.path.join('files','systray_events.txt') #debug
+#	evnt_file=os.path.join(os.getenv('HOME'),'.local','share','systray_notify','events.txt')
 	
 	#command-line utilities and options
 	if(len(sys.argv)>1):

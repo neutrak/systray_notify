@@ -1,5 +1,44 @@
 #!/bin/bash
 
+#this checks for new emails in a maildir directory
+#note this does not FETCH mail, it just checks if what's been downloaded is new
+#1st argument: mail directory (maildir)
+#2nd argument: minimum timestamp to be considered "new"
+check_new_emails(){
+	output_file="$1"
+	email_path="$2"
+#	last_ts=0
+	#not knowing when we last checked, start from now
+	last_ts="$(date +%s)"
+	
+	while [ 1 ]
+	do
+		new_ts=$last_ts
+		#for each email folder
+		for dir in "${email_path}"/*
+		do
+			#for each individual email
+			for f in $(ls "${dir}")
+			do
+				#check when this email was sent/received
+				file_date="$(date --date="$(fgrep "Date: " "${dir}/$f" | sed 's/^Date: //g')" +%s)"
+				
+				#if this was a new email, then display it
+				if [ $file_date -ge $last_ts ]
+				then
+					./systray_notify.py email "${dir}/$f" >> $1
+					
+					if [ $file_date -gt $new_ts ]
+					then
+						new_ts=$(($file_date+1))
+					fi
+				fi
+			done
+		done
+		last_ts=$new_ts
+	done
+}
+
 notify_on() {
 	#initial timestamp is epoch, until a timestamp is known
 	last_ts=0
@@ -47,6 +86,20 @@ notify_on() {
 }
 
 #local machine configuration
-#notify_on 'http://192.168.1.4/pings.txt' "${HOME}/.local/share/systray_notify/events.txt" "curl"
-notify_on "$1" "$2" "$3"
+if [ "$1" == "email" ]
+then
+	#1st argument: output file
+	#2nd argument: mail directory (maildir)
+	check_new_emails "$2" "$3"
+elif [ "$1" == "watch" ]
+then
+	#1st argument: input file
+	#2nd argument: output file
+	#3rd argument: network input? (curl)
+	#notify_on 'http://192.168.1.4/pings.txt' "${HOME}/.local/share/systray_notify/events.txt" "curl"
+	notify_on "$2" "$3" "$4"
+else
+	echo "Usage: $0 <email> <output file> <mail directory>"
+	echo "Usage: $0 <watch> <input file> <output file> <curl|local>"
+fi
 
