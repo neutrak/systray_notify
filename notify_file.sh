@@ -13,6 +13,8 @@ check_new_emails(){
 	
 	while [ 1 ]
 	do
+		getmail
+		
 		new_ts=$last_ts
 		#for each email folder
 		for dir in "${email_path}"/*
@@ -36,6 +38,9 @@ check_new_emails(){
 			done
 		done
 		last_ts=$new_ts
+		
+		#only check every 3 minutes
+		sleep 180
 	done
 }
 
