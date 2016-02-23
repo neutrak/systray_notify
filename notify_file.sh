@@ -40,8 +40,8 @@ check_new_emails(){
 		done
 		last_ts=$new_ts
 		
-		#only check every 3 minutes
-		sleep 180
+		#only check every 30 minutes
+		sleep 1800
 	done
 }
 
