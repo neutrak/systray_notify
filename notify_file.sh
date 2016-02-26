@@ -24,7 +24,7 @@ check_new_emails(){
 			for f in $(ls "${dir}")
 			do
 				#check when this email was sent/received
-				file_date="$(date --date="$(fgrep "Date: " "${dir}/$f" | sed 's/^Date: //g')" +%s)"
+				file_date="$(date --date="$(fgrep "Date: " "${dir}/$f" | sed 's/^Date: //g' | head -n 1)" +%s)"
 				
 				#if this was a new email, then display it
 				if [ $file_date -ge $last_ts ]
