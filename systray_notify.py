@@ -138,6 +138,18 @@ class systray_notify:
 		self.sts_ico.menu.popdown()
 		return self.ack_evnt(widget,data)
 	
+	def ack_all_evnts(self,widget,data=None):
+		self.evnts=[]
+		#destroy the event menu if it exists
+		if(self.evnt_menu!=None):
+			self.evnt_menu.popdown()
+			self.evnt_menu.destroy()
+			self.evnt_menu=None
+		
+		#rewrite the event file
+		self.write_events(self.evnt_file,self.evnts)
+		self.set_ackmenu()
+	
 	def set_ackmenu(self):
 		#destroy the event menu if it exists
 		if(self.evnt_menu!=None):
@@ -147,6 +159,14 @@ class systray_notify:
 		
 		#create a menu which allows the user to acknowledge events
 		self.evnt_menu=gtk.Menu()
+		
+		#create an "acknowledge all" item at the top
+		ack_all_item=gtk.MenuItem('------ ACKNOWLEDGE ALL EVENTS ------')
+		ack_all_item.connect('activate',self.ack_all_evnts)
+		ack_all_item.connect('button-press-event',self.ack_all_evnts)
+		self.evnt_menu.append(ack_all_item)
+		
+		#create individual acknowledgement entries for each event
 		for n in xrange(0,len(self.evnts)):
 			evnt=self.evnts[n]
 			evnt_item=gtk.MenuItem(evnt.evnt_type+' : '+evnt.evnt_txt)
