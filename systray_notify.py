@@ -11,6 +11,8 @@ import sys
 import select
 import time
 import datetime
+#for calling mpv without it blocking, use subprocess.Popen
+import subprocess
 
 #icon_path='test_files' #debug
 #icon_path=os.path.join(os.getenv('HOME'),'.local','share','systray_notify')
@@ -27,18 +29,26 @@ green_icon='notify_green.png'
 blue_icon='notify_blue.png'
 yellow_icon='notify_yellow.png'
 
+snd_path=os.path.join('snds')
+email_sound='notify_email.ogg'
+ping_sound='notify_ping.ogg'
+pm_sound='notify_pm.ogg'
+passing_sound='notify_passing.ogg'
+aborted_sound='notify_aborted.ogg'
+failing_sound='notify_failing.ogg'
+
 #a list of event definitions
 #this consists of tuples of the following form
 #(evnt_type, evnt_icon, evnt_nice)
 #where nice is inverse priority (like *nix nice values)
 #unknown events have a nice value of 1000 and use the evnt_icon file
 evnt_defs=[
-	('email',email_icon,1),
-	('ping',ping_icon,2),
-	('pm',pm_icon,2),
-	('passing',green_icon,6),
-	('aborted',yellow_icon,5),
-	('failing',red_icon,4),
+	('email',email_icon,1,email_sound),
+	('ping',ping_icon,2,ping_sound),
+	('pm',pm_icon,2,pm_sound),
+	('passing',green_icon,6,passing_sound),
+	('aborted',yellow_icon,5,aborted_sound),
+	('failing',red_icon,4,failing_sound),
 	]
 
 class systray_evnt:
@@ -334,9 +344,11 @@ class systray_notify:
 			elif(self.icon_name!=idle_icon):
 				self.sts_ico.set_from_file(os.path.join(icon_path,idle_icon))
 				self.icon_name=idle_icon
+			
 			#give the cpu a 50ms break
 			time.sleep(0.05)
 			
+			prev_evnt_cnt=len(self.evnts)
 			#if the polling time is up, then read from the file
 			if((time.time()-self.last_poll)>=self.poll_delay):
 				self.evnts=self.read_events(self.evnt_file)
@@ -344,6 +356,21 @@ class systray_notify:
 				if(len(self.evnts)==0):
 					self.sts_ico.set_blinking(False)
 				self.last_poll=time.time()
+			
+			#if new events have come in, then beep for them
+			#based on the sound defined for the most recent event
+			if(len(self.evnts)>prev_evnt_cnt):
+				snd_file=os.path.join(snd_path,'notify_unknown.mp3')
+				evnt_type=self.evnts[len(self.evnts)-1].evnt_type.lower()
+				for evnt_def in evnt_defs:
+					#if we found the event defined, then play the sound file given in the event definition
+					if(evnt_type==evnt_def[0]):
+						snd_file=os.path.join(snd_path,evnt_def[3])
+						break
+				#mpv the file! (no video playback though)
+				#do it in a new thread so as not to block
+#				os.system('mpv -vo null '+snd_file)
+				subprocess.Popen(['mpv','-vo','null',snd_file])
 			
 
 
